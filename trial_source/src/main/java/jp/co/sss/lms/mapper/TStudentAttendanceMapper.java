@@ -10,16 +10,16 @@ import jp.co.sss.lms.dto.AttendanceManagementDto;
 import jp.co.sss.lms.entity.TStudentAttendance;
 
 /**
- * 勤怠情報（受講生入力）テーブルマッパー
- * 
- * @author 東京ITスクール
- */
+ * 勤怠情報（受講生入力）テーブルマッパー
+ *
+ * @author 東京ITスクール
+ */
 @Mapper
 public interface TStudentAttendanceMapper {
 
 	/**
 	 * 勤怠情報（受講生入力）取得（LMSユーザーID）
-	 * 
+	 *
 	 * @param lmsUserId
 	 * @param deleteFlg
 	 * @return 勤怠情報（受講生入力）エンティティ
@@ -29,7 +29,7 @@ public interface TStudentAttendanceMapper {
 
 	/**
 	 * 勤怠情報（受講生入力）取得（LMSユーザーID＆日付）
-	 * 
+	 *
 	 * @param lmsUserId
 	 * @param trainingDate
 	 * @param deleteFlg
@@ -40,7 +40,7 @@ public interface TStudentAttendanceMapper {
 
 	/**
 	 * 勤怠管理画面用DTOリスト取得
-	 * 
+	 *
 	 * @param courseId
 	 * @param lmsUserId
 	 * @param deleteFlg
@@ -51,7 +51,7 @@ public interface TStudentAttendanceMapper {
 
 	/**
 	 * 勤怠情報（受講生入力）登録
-	 * 
+	 *
 	 * @param tStudentAttendance
 	 * @return 登録結果
 	 */
@@ -59,10 +59,23 @@ public interface TStudentAttendanceMapper {
 
 	/**
 	 * 勤怠情報（受講生入力）更新
-	 * 
+	 *
 	 * @param tStudentAttendance
 	 * @return 更新結果
 	 */
 	Boolean update(TStudentAttendance tStudentAttendance);
 
+
+/**
+ * 過去日の未入力件数取得
+ *
+ * @param lmsUserId　　
+ * @param deleteFlg
+ * @param trainingDate
+ * @return 未入力件数
+ */
+int notEnterCount(
+		@Param("lmsUserId") Integer lmsUserId,
+		@Param("deleteFlg") Short deleteFlg,
+		@Param("trainingDate") Date trainingDate);
 }

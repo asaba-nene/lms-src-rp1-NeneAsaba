@@ -17,10 +17,10 @@ import jp.co.sss.lms.service.StudentAttendanceService;
 import jp.co.sss.lms.util.Constants;
 
 /**
- * 勤怠管理コントローラ
- * 
- * @author 東京ITスクール
- */
+ * 勤怠管理コントローラ
+ *
+ * @author 東京ITスクール
+ */
 @Controller
 @RequestMapping("/attendance")
 public class AttendanceController {
@@ -32,7 +32,7 @@ public class AttendanceController {
 
 	/**
 	 * 勤怠管理画面 初期表示
-	 * 
+	 *
 	 * @param lmsUserId
 	 * @param courseId
 	 * @param model
@@ -40,7 +40,10 @@ public class AttendanceController {
 	 * @throws ParseException
 	 */
 	@RequestMapping(path = "/detail", method = RequestMethod.GET)
-	public String index(Model model) {
+	public String index(Model model) throws ParseException {           //日付の変換処理（文字列からDate型への変換など）で失敗したとき、エラー対応をこの場所で行うのではなく呼び出し元のシステム側にエラー処理を任せますという宣言
+		// 過去日の未入力チェック
+		Boolean hasNotEnter = studentAttendanceService.notEnterCheck(); //StudentAttendanceService の notEnterCheck() を呼び出す。
+		model.addAttribute("hasNotEnter", hasNotEnter);  //Model(画面へデータを運ぶための箱）に、"hasNotEnter" という名前をつけて判定結果（true / false）を入れる。
 
 		// 勤怠一覧の取得
 		List<AttendanceManagementDto> attendanceManagementDtoList = studentAttendanceService
@@ -52,7 +55,7 @@ public class AttendanceController {
 
 	/**
 	 * 勤怠管理画面 『出勤』ボタン押下
-	 * 
+	 *
 	 * @param model
 	 * @return 勤怠管理画面
 	 */
@@ -77,7 +80,7 @@ public class AttendanceController {
 
 	/**
 	 * 勤怠管理画面 『退勤』ボタン押下
-	 * 
+	 *
 	 * @param model
 	 * @return 勤怠管理画面
 	 */
@@ -102,7 +105,7 @@ public class AttendanceController {
 
 	/**
 	 * 勤怠管理画面 『勤怠情報を直接編集する』リンク押下
-	 * 
+	 *
 	 * @param model
 	 * @return 勤怠情報直接変更画面
 	 */
@@ -122,7 +125,7 @@ public class AttendanceController {
 
 	/**
 	 * 勤怠情報直接変更画面 『更新』ボタン押下
-	 * 
+	 *
 	 * @param attendanceForm
 	 * @param model
 	 * @param result
