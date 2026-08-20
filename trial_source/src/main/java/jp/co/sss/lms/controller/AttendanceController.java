@@ -29,21 +29,21 @@ public class AttendanceController {
 	private StudentAttendanceService studentAttendanceService;
 	@Autowired
 	private LoginUserDto loginUserDto;
-
+	// 浅場寧々 – Task.25
 	/**
-	 * 勤怠管理画面 初期表示
-	 *
-	 * @param lmsUserId
-	 * @param courseId
-	 * @param model
+	 *『勤怠』ボタン押下
+	 *@author 浅場寧々-Task.25
+	 * @param lmsUserId　LMSユーザーID
+	 * @param courseId　LMSコースID
+	 * @param model　モデル
 	 * @return 勤怠管理画面
 	 * @throws ParseException
 	 */
 	@RequestMapping(path = "/detail", method = RequestMethod.GET)
-	public String index(Model model) throws ParseException {           //日付の変換処理（文字列からDate型への変換など）で失敗したとき、エラー対応をこの場所で行うのではなく呼び出し元のシステム側にエラー処理を任せますという宣言
+	public String index(Model model) throws ParseException { //日付の変換処理（文字列からDate型への変換など）で失敗したとき、エラー対応をこの場所で行うのではなく呼び出し元のシステム側にエラー処理を任せますという宣言
 		// 過去日の未入力チェック
 		Boolean hasNotEnter = studentAttendanceService.notEnterCheck(); //StudentAttendanceService の notEnterCheck() を呼び出す。
-		model.addAttribute("hasNotEnter", hasNotEnter);  //Model(画面へデータを運ぶための箱）に、"hasNotEnter" という名前をつけて判定結果（true / false）を入れる。
+		model.addAttribute("hasNotEnter", hasNotEnter); //Model(画面へデータを運ぶための箱）に、"hasNotEnter" という名前をつけて判定結果（true / false）を入れる。
 
 		// 勤怠一覧の取得
 		List<AttendanceManagementDto> attendanceManagementDtoList = studentAttendanceService
@@ -135,6 +135,9 @@ public class AttendanceController {
 	@RequestMapping(path = "/update", params = "complete", method = RequestMethod.POST)
 	public String complete(AttendanceForm attendanceForm, Model model, BindingResult result)
 			throws ParseException {
+
+		// ★Task.26: 送信された時・分を hh:mm 形式に変換
+		studentAttendanceService.formatConversion(attendanceForm);
 
 		// 更新
 		String message = studentAttendanceService.update(attendanceForm);

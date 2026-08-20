@@ -222,6 +222,22 @@ public class StudentAttendanceService {
 		attendanceForm.setLeaveFlg(loginUserDto.getLeaveFlg());
 		attendanceForm.setBlankTimes(attendanceUtil.setBlankTime());
 
+		//Task26 時間マップ
+		LinkedHashMap<Integer, String> hourMap = new LinkedHashMap<>();
+		hourMap.put(null, "");
+		for (int i = 0; i < 24; i++) {
+			hourMap.put(i, String.format("%02d", i));
+		}
+		attendanceForm.setHourMap(hourMap);
+
+		//Task26 分マップ
+		LinkedHashMap<Integer, String> minuteMap = new LinkedHashMap<>();
+		minuteMap.put(null, "");
+		for (int i = 0; i < 60; i++) {
+			minuteMap.put(i, String.format("%02d", i));
+		}
+		attendanceForm.setMinuteMap(minuteMap);
+
 		// 途中退校している場合のみ設定
 		if (loginUserDto.getLeaveDate() != null) {
 			attendanceForm
@@ -240,6 +256,20 @@ public class StudentAttendanceService {
 			dailyAttendanceForm
 					.setTrainingStartTime(attendanceManagementDto.getTrainingStartTime());
 			dailyAttendanceForm.setTrainingEndTime(attendanceManagementDto.getTrainingEndTime());
+
+			//Task26
+			String startTime = attendanceManagementDto.getTrainingStartTime();
+			if (startTime != null && startTime.length() >= 5) {
+				dailyAttendanceForm.setTrainingStartTimeHour(Integer.parseInt(startTime.substring(0, 2)));
+				dailyAttendanceForm.setTrainingStartTimeMinute(Integer.parseInt(startTime.substring(3, 5)));
+			}
+
+			String endTime = attendanceManagementDto.getTrainingEndTime();
+			if (endTime != null && endTime.length() >= 5) {
+				dailyAttendanceForm.setTrainingEndTimeHour(Integer.parseInt(endTime.substring(0, 2)));
+				dailyAttendanceForm.setTrainingEndTimeMinute(Integer.parseInt(endTime.substring(3, 5)));
+			}
+
 			if (attendanceManagementDto.getBlankTime() != null) {
 				dailyAttendanceForm.setBlankTime(attendanceManagementDto.getBlankTime());
 				dailyAttendanceForm.setBlankTimeValue(String.valueOf(
@@ -335,107 +365,54 @@ public class StudentAttendanceService {
 		// 完了メッセージ
 		return messageUtil.getMessage(Constants.PROP_KEY_ATTENDANCE_UPDATE_NOTICE);
 	}
-	
+	// 浅場寧々 – Task.25
 	/**
-	 * Task.25 過去日の未入力チェック
-	 * 今日より前の過去日に、未入力の勤怠があるかどうかを判定する。
-	 * 
+	 * 『勤怠』ボタンを押下
+	 *@author 浅場寧々 -Task.25
 	 * @return 未入力日が0より大きい場合 true、そうでない場合は false
 	 * @throws ParseException
 	 */
 	public Boolean notEnterCheck() throws ParseException {
-		//a. SimpleDateFormatクラスでフォーマットパターンを設定する
+		// a. SimpleDateFormatクラスでフォーマットパターンを設定する
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
 
-		// b. 現在日付を取得し、フォーマットを適用する
-		 String todayStr = sdf.format(new Date());
-		 Date today = sdf.parse(todayStr); 
-		
+		// b. 現在日付を取得する
+		String todayStr = sdf.format(new Date());
+		Date today = sdf.parse(todayStr);
+
 		// 2. tStudentAttendanceMapper.notEnterCount を呼び出し、未入力件数を取得する
-		
 		int count = tStudentAttendanceMapper.notEnterCount(
 				loginUserDto.getLmsUserId(),
 				Constants.DB_FLG_FALSE,
 				today);
 
-		// 3. 件数が 0 より大きければ true、そうでないならば false を戻す
+		// 3. 件数が 0 より大きければ true、そうでなければ false を戻す
 		return count > 0;
-	} // ← 363行目の notEnterCheck() の閉じカッコ
+	}
 
-	/**
-	 * 勤怠フォームの設定
-	 * 
-	 * @param attendanceManagementDtoList 勤怠管理DTOリスト
-	 * @return 勤怠フォーム
-	 */
-	public AttendanceForm setAttendanceForm1(List<AttendanceManagementDto> attendanceManagementDtoList) {
+	// Task26
 
-		AttendanceForm attendanceForm = new AttendanceForm();
-
-		// 1. 時間マップ・分マップの作成
-		LinkedHashMap<Integer, String> hourMap = new LinkedHashMap<>();
-		hourMap.put(null, "");
-		for (int i = 0; i < 24; i++) {
-			hourMap.put(i, String.format("%02d", i));
+	public void formatConversion(AttendanceForm attendanceForm) {
+		if (attendanceForm == null || attendanceForm.getAttendanceList() == null) {
+			return;
 		}
 
-		LinkedHashMap<Integer, String> minuteMap = new LinkedHashMap<>();
-		minuteMap.put(null, "");
-		for (int i = 0; i < 60; i++) {
-			minuteMap.put(i, String.format("%02d", i));
-		}
-
-		attendanceForm.setHourMap(hourMap);
-		attendanceForm.setMinuteMap(minuteMap);
-
-		// 2. DTOから取得した "09:15" などの文字列を「時」「分」に分解して DailyAttendanceForm にセットするループ処理
-		for (AttendanceManagementDto dto : attendanceManagementDtoList) {
-			DailyAttendanceForm dailyForm = new DailyAttendanceForm();
-
-			// 出勤時間の分割
-			if (dto.getTrainingStartTime() != null && dto.getTrainingStartTime().contains(":")) {
-				String[] startTimeParts = dto.getTrainingStartTime().split(":");
-				dailyForm.setTrainingStartTimeHour(Integer.parseInt(startTimeParts[0]));
-				dailyForm.setTrainingStartTimeMinute(Integer.parseInt(startTimeParts[1]));
+		for (DailyAttendanceForm dailyForm : attendanceForm.getAttendanceList()) {
+			// 出勤の「時」「分」が両方選択されている場合
+			if (dailyForm.getTrainingStartTimeHour() != null && dailyForm.getTrainingStartTimeMinute() != null) {
+				String formattedStartTime = String.format("%02d:%02d",
+						dailyForm.getTrainingStartTimeHour(),
+						dailyForm.getTrainingStartTimeMinute());
+				dailyForm.setTrainingStartTime(formattedStartTime);
 			}
 
-			// 退勤時間の分割
-			if (dto.getTrainingEndTime() != null && dto.getTrainingEndTime().contains(":")) {
-				String[] endTimeParts = dto.getTrainingEndTime().split(":");
-				dailyForm.setTrainingEndTimeHour(Integer.parseInt(endTimeParts[0]));
-				dailyForm.setTrainingEndTimeMinute(Integer.parseInt(endTimeParts[1]));
+			// 退勤の「時」「分」が両方選択されている場合
+			if (dailyForm.getTrainingEndTimeHour() != null && dailyForm.getTrainingEndTimeMinute() != null) {
+				String formattedEndTime = String.format("%02d:%02d",
+						dailyForm.getTrainingEndTimeHour(),
+						dailyForm.getTrainingEndTimeMinute());
+				dailyForm.setTrainingEndTime(formattedEndTime);
 			}
 		}
-
-		return attendanceForm;
 	}
-
-
-  public void formatConversion(AttendanceForm attendanceForm) {
-	if (attendanceForm == null || attendanceForm.getAttendanceList() == null) {
-		return;
-	}
-
-	for (DailyAttendanceForm dailyForm : attendanceForm.getAttendanceList()) {
-		// 出勤の「時」「分」が共に入力されている場合
-		if (dailyForm.getTrainingStartTimeHour() != null && dailyForm.getTrainingStartTimeMinute() != null) {
-			String startTime = String.format("%02d:%02d",
-					dailyForm.getTrainingStartTimeHour(),
-					dailyForm.getTrainingStartTimeMinute());
-			dailyForm.setTrainingStartTime(startTime);
-		} else {
-			dailyForm.setTrainingStartTime(null);
-		}
-
-		// 退勤の「時」「分」が共に入力されている場合
-		if (dailyForm.getTrainingEndTimeHour() != null && dailyForm.getTrainingEndTimeMinute() != null) {
-			String endTime = String.format("%02d:%02d",
-					dailyForm.getTrainingEndTimeHour(),
-					dailyForm.getTrainingEndTimeMinute());
-			dailyForm.setTrainingEndTime(endTime);
-		} else {
-			dailyForm.setTrainingEndTime(null);
-		}
-	}
-  }
 }
