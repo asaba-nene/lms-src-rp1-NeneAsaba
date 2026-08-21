@@ -365,10 +365,11 @@ public class StudentAttendanceService {
 		// 完了メッセージ
 		return messageUtil.getMessage(Constants.PROP_KEY_ATTENDANCE_UPDATE_NOTICE);
 	}
+	
 	// 浅場寧々 – Task.25
 	/**
 	 * 『勤怠』ボタンを押下
-	 *@author 浅場寧々 -Task.25
+	 * @author 浅場寧々 -Task.25
 	 * @return 未入力日が0より大きい場合 true、そうでない場合は false
 	 * @throws ParseException
 	 */

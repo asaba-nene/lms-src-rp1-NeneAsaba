@@ -93,7 +93,8 @@
 		blank_time = #{blankTime}
 		WHERE student_attendance_id = #{studentAttendanceId}
 	</update>
-	<!-- 浅場寧々 – Task25 –->
+	
+	<!-- 浅場寧々 – Task25 -->
 	<!-- 過去日の未入力件数取得 -->
 	<select id="notEnterCount" resultType="int">
 		SELECT
@@ -103,8 +104,7 @@
 		WHERE
 		lms_user_id = #{lmsUserId} <!-- Javaの @Param("lmsUserId") から受け取った名札の値を当てはめ、自分のデータだけに絞り込む -->
 		AND delete_flg = #{deleteFlg} <!--ゴミ箱に入っていない有効なデータ（削除フラグ = 0)かどうか -->
-		AND CAST(training_date AS DATE) &lt; CAST(#{trainingDate} AS DATE) <!-- 
-			今日より前の過去の日付であるかの確認 -->
+		AND CAST(training_date AS DATE) &lt; CAST(#{trainingDate} AS DATE) <!-- 今日より前の過去の日付であるかの確認 -->
 		AND status != 1 <!-- 欠席の日は除外する -->
 		AND (
 		training_start_time = ''

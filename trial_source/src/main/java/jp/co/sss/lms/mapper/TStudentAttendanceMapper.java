@@ -64,10 +64,12 @@ public interface TStudentAttendanceMapper {
 	 * @return 更新結果
 	 */
 	Boolean update(TStudentAttendance tStudentAttendance);
+	
 	// 浅場寧々 – Task.25
 	/**
-	 *『勤怠』ボタンを押下
-	 *@author 浅場寧々 -Task.25
+	 *『勤怠』ボタン押下時の未入力チェック
+	 * 指定したユーザーおよび日付における勤怠データの未入力件数を取得する。
+	 * @author 浅場寧々 -Task.25
 	 * @param lmsUserId　LMSユーザーID　
 	 * @param deleteFlg　削除フラグ
 	 * @param trainingDate　日付

@@ -29,12 +29,13 @@ public class AttendanceController {
 	private StudentAttendanceService studentAttendanceService;
 	@Autowired
 	private LoginUserDto loginUserDto;
+	
 	// 浅場寧々 – Task.25
 	/**
 	 *『勤怠』ボタン押下
-	 *@author 浅場寧々-Task.25
+	 * @author 浅場寧々-Task.25
 	 * @param lmsUserId　LMSユーザーID
-	 * @param courseId　LMSコースID
+	 * @param courseId　コースID
 	 * @param model　モデル
 	 * @return 勤怠管理画面
 	 * @throws ParseException
